@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block pageheading %}
+  {{ product[1] }}
+{% endblock %}
+
+{% block main %}
+<div class="product-detail-card">
+  <img src="/static/images/{{ product[4] }}.jpg" alt="{{ product[1] }}" class="product-image">
+  <h3 class="product-title">{{ product[1] }}</h3>
+  <p class="product-description">{{ product[2] }}</p>
+  <p class="product-info"><strong>Size:</strong> {{ product[3] }}</p>
+  <p class="product-info"><strong>Price:</strong> ${{ product[5] }}</p>
+
+  {% if ordering %}
+  <a href="/add_to_cart/{{ product[0] }}" class="add-to-cart">Add to Cart</a>
+  {% endif %}
+</div>
+{% endblock %}

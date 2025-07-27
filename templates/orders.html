@@ -1,0 +1,42 @@
+    {% extends 'base.html' %}
+
+    {% block pageheading %}
+    {{ label }} orders
+    {% endblock %}
+
+    {% block main %}
+    <p><a href="/process_orders/1">Unprocessed Orders l</a> <a href="/process_orders/0"> Processed Orders</a></p>
+
+    {% for order in orders %} 
+
+    <div class="order-heading">
+        <h3> Order {{ order[0] }} for {{ order[1] }}, time: {{ order[2] }} </h3>
+        {% if label == "unprocessed" %}
+        <form action="/process_orders/{{ order[0] }}" method="POST">
+            <input type="hidden" name="_method" value="PUT">
+            <button type="submit" class="button"> Mark order as processed</button>
+        </form>
+        {% endif %}
+    </div>
+    <table class="{{ label }}">
+        <tr>
+            <th>Item</th>
+            <th class="number">Quantity</th>
+            <th class="number">Each</th>
+            <th class="number">Total</th>
+        </tr>
+        {% for item in order[3] %}
+    
+        <tr>
+            <td>{{ item[0] }}</td>
+            <td class="number">{{ item[1] }}</td>
+            <td class="number">${{ item[2] }}</td>
+            <td class="number">${{ item[3] }}</td>
+        </tr>
+        {% endfor %}
+        <tr>
+            <th colspan="4" class="number">Total ${{ order[4] }}</th>
+        </tr>
+    </table>
+    {% endfor %}
+{% endblock %}

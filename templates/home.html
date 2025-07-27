@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+
+{% block pageheading %}welcome{% endblock %}
+
+{% block main %}
+    {% if message %}
+        <div class="message">{{ message }}</div>
+    {% endif %}
+{% endblock %}
