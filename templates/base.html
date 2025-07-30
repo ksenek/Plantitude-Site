@@ -19,8 +19,7 @@
             <a href="/products/1">products</a>
             <a href="/contact">contact</a>
           {% if logged_in %}
-          <a href ="/logout">logout</a>
-          <a href ="/admin">admin</a>
+          <a href ="/logout">logout</a>          
           {% else %}
           <a href="/login">login</a>
           {% endif %}
@@ -29,6 +28,10 @@
           {% else %}
           <a href="/products/1?order=start">order</a>
           {% endif %}
+          {% if session.get('role') == 'admin' %}
+          <a href="/admin">admin</a>
+          {% endif %}
+
         </div>
     </div>
 </nav>
