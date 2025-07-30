@@ -115,16 +115,24 @@ def render_products_page(cat_id):
   category_list = cur.fetchall()
   print(category_list)
 
-  #fetch selected category name
-  cur.execute("SELECT name FROM category WHERE id=?", (cat_id))
-  result = cur.fetchone()
-  selected_category_name = result[0] if result else None
+  selected_category_name = None
 
-  #fetch the products
-  query = "SELECT * FROM products WHERE cat_id =? ORDER BY name"
-  cur = con.cursor()
-  cur.execute(query, (cat_id, ))
-  product_list = cur.fetchall()
+  if cat_id == "0":
+    #fetch all products
+    cur.execute("SELECT * FROM products")
+    product_list=cur.fetchall()
+  else:
+    #fetch selected category name
+    cur.execute("SELECT name FROM category WHERE id=?", (cat_id))
+    result = cur.fetchone()
+    selected_category_name = result[0] if result else None
+
+    #fetch the products
+    query = "SELECT * FROM products WHERE cat_id =? ORDER BY name"
+    cur = con.cursor()
+    cur.execute(query, (cat_id, ))
+    product_list = cur.fetchall()
+
   con.close()
 
 
@@ -156,7 +164,7 @@ def render_login_page():
     email = request.form['email'].strip().lower()
     password = request.form['password'].strip()
     print(email)
-    query = "SELECT id, fname, password FROM user WHERE email =?"
+    query = "SELECT id, fname, password, role FROM user WHERE email =?"
     con = create_connection(DATABASE)
     cur = con.cursor()
     cur.execute(query, (email, ))
@@ -172,6 +180,7 @@ def render_login_page():
       user_id = user_data[0][0]
       first_name = user_data[0][1]
       db_password = user_data[0][2]
+      user_role = user_data[0][3]
     except IndexError:
       return redirect("/login?error=Email+invalid+or+password+incorrect")
 
@@ -187,6 +196,7 @@ def render_login_page():
     session['email'] = email
     session['user_id'] = user_id
     session['firstname'] = first_name
+    session['role'] = user_role
 
     print(session)
     return redirect('/')
@@ -214,6 +224,7 @@ def render_signup_page():
     email = request.form.get('email').lower().strip()
     password = request.form.get('password')
     password2 = request.form.get('password2')
+    role = request.form.get('role') #adding role to signup app route
 
     if password != password2:
       return redirect("/signup?error=Passwords+do+not+match")
@@ -225,13 +236,13 @@ def render_signup_page():
       password).decode('utf-8')  #creating a hash password
     print(hashed_password)
     con = create_connection(DATABASE)
-    query = "INSERT INTO user(fname, lname, email, password) VALUES(?, ?, ?, ?)"
+    query = "INSERT INTO user(fname, lname, email, password, role) VALUES(?, ?, ?, ?, ?)"
     cur = con.cursor()
 
     try:
       cur.execute(
         query,
-        (fname, lname, email, hashed_password))  #this line executes the query
+        (fname, lname, email, hashed_password, role))  #this line executes the query
     except sqlite3.IntegrityError:
       con.close()
       return redirect('/signup?error=Email+is+already+used')
@@ -241,12 +252,18 @@ def render_signup_page():
 
     return redirect("/login")
   return render_template('signup.html', logged_in=is_logged_in())
-  
+
+#admin helper function
+def is_admin():
+  return session.get("role") == "admin"
+
 #admin section
 @app.route('/admin')
 def render_admin():
   if not is_logged_in():
     return redirect('/message=Need+to+be+logged+in.')
+  if not is_admin():
+    return redirect('/?message=Access+Denied+Not+Admin+Account')
   con = create_connection(DATABASE)
   #fetch the categories
   query = "SELECT * FROM category"
@@ -271,6 +288,8 @@ def render_admin():
 def add_category():
   if not is_logged_in():
     return redirect('/message=Need+to+be+logged+in.')
+  if not is_admin():
+    return redirect('/?message=Access+Denied+Not+Admin+Account')
   if request.method == "POST":
     print(request.form)
     cat_name = request.form.get('name').lower().strip()
@@ -289,7 +308,8 @@ def add_category():
 def render_delete_category():
   if not is_logged_in():
     return redirect('/message=Need+to+be+logged+in.')
-
+  if not is_admin():
+    return redirect('/?message=Access+Denied+Not+Admin+Account')
   if request.method == "POST":
     con=create_connection(DATABASE)
     category = request.form.get('cat_id')
@@ -318,6 +338,8 @@ def render_delete_category_confirm(cat_id):
 def render_add_item():
   if not is_logged_in():
     return redirect('/message=Need+to+be+logged+in.')
+  if not is_admin():
+    return redirect('/?message=Access+Denied+Not+Admin+Account')
   if request.method == "POST":
     print(request.form)
     item_name = request.form.get('name').lower().strip()
@@ -342,6 +364,8 @@ def render_add_item():
 def render_delete_item():
   if not is_logged_in():
     return redirect('/message=Need+to+be+logged+in.')
+  if not is_admin():
+    return redirect('/?message=Access+Denied+Not+Admin+Account')
 
   if request.method == "POST":
     con=create_connection(DATABASE)
@@ -364,6 +388,8 @@ def render_delete_item_confirm(item_id):
   print("I am in here")
   if not is_logged_in():
     return redirect('/message=Need+to+be+logged+in.')
+  if not is_admin():
+    return redirect('/?message=Access+Denied+Not+Admin+Account')
 
   con=create_connection(DATABASE)
   query = "DELETE FROM products WHERE id = ?"
@@ -477,6 +503,8 @@ def render_processed_orders(processed):
 #process order with order id
 @app.route('/process_orders/<order_id>', methods=['POST'])
 def process_order(order_id):
+  if not is_admin():
+    return redirect('/?message=Access+Denied+Not+Admin+Account')
   if request.method == 'POST':
     print("updating order process function")
     #set the processed flag to 0 to mark it as processed
