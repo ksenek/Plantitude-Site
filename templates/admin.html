@@ -38,27 +38,28 @@
   </div>
 </form>
 
-<h3>Item Admin</h3>
-<h4> Add an item</h4>
-<form class="myform" method="post" action="/add_item">
+<h3>Product Admin</h3>
+
+<h4> Add a product</h4>
+<form class="myform" method="post" action="/add_product">
   <div class="form-group">
-    <div class="form-label"><label for="name">Item Name:</label></div>
+    <div class="form-label"><label for="name">Product Name:</label></div>
     <div class="form-element"><input type="text" name="name" id="name" required></div>
   </div>
   <div class="form-group">
-    <div class="form-label"><label for="description">Item Description:</label></div>
+    <div class="form-label"><label for="description">Product Description:</label></div>
     <div class="form-element"><input type="text" name="description" id="description" required></div>
   </div>
   <div class="form-group">
-    <div class="form-label"><label for="volume">Item Volume:</label></div>
+    <div class="form-label"><label for="volume">Product Volume:</label></div>
     <div class="form-element"><input type="text" name="volume" id="volume" required></div>
   </div>
   <div class="form-group">
-    <div class="form-label"><label for="image">Item Image Name:</label></div>
+    <div class="form-label"><label for="image">Product Image Name:</label></div>
     <div class="form-element"><input type="text" name="image" id="image" required></div>
   </div>
   <div class="form-group">
-    <div class="form-label"><label for="price">Item Price:</label></div>
+    <div class="form-label"><label for="price">Product Price:</label></div>
     <div class="form-element"><input type="text" name="price" id="price" required></div>
   </div>
   <div class="form-group">
@@ -73,17 +74,17 @@
   </div>
   <div class="form-group">
     <div class="form-label"></div>
-    <div class="form-element"><input type="submit" value="Add Item"></div>
+    <div class="form-element"><input type="submit" value="Add Product"></div>
   </div>
 </form>
 
 
-<h4> Delete an item </h4>
-<form class ="myform" method="post" action="/delete_item">
+<h4> Delete a product </h4>
+<form class ="myform" method="post" action="/delete_product">
   <div class ="form-group">
-    <div class ="form-label"><label for="item_id">Item Name:</label></div>
+    <div class ="form-label"><label for="product_id">Product Name:</label></div>
     <div class ="form-element">
-      <select id="item_id" name="item_id" >
+      <select id="product_id" name="product_id" >
         {% for product in products %}
           <option value ="{{ product[0] }}">{{ product[1] }}</option>
         {% endfor %}
@@ -92,7 +93,31 @@
   </div>
   <div class ="form-group">
     <div class ="form-label"></div>
-    <div class ="form-element"><input type="submit" value ="Delete Item"></div>
+    <div class ="form-element"><input type="submit" value ="Delete Product"></div>
   </div>
 </form>
+
+
+<h4>Edit a product</h4>
+<form class="myform" method="get" action="/edit_product">
+  <div class="form-group">
+    <div class="form-label">
+      <label for="product_id">Select Product:</label>
+    </div>
+    <div class="form-element">
+      <select name="product_id" id="product_id">
+        {% for product in products %}
+          <option value="{{ product[0] }}">{{ product[1] }}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+  <div class="form-group">
+    <div class="form-label"></div>
+    <div class="form-element">
+      <input type="submit" value="Edit Product">
+    </div>
+  </div>
+</form>
+
 {% endblock %}
