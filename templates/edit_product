@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block pageheading %}Edit Product{% endblock %}
+
+{% block main %}
+<div class="myform">
+  <form method="post">
+    <div class="form-group">
+      <label class="form-label">Name:</label>
+      <div class="form-element">
+        <input type="text" name="name" value="{{ product[1] }}" required>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Description:</label>
+      <div class="form-element">
+        <textarea name="description" rows="4" required>{{ product[2] }}</textarea>
+      </div>
+    </div>
+
+  
+    <div class="form-group">
+      <label class="form-label">Image URL:</label>
+      <div class="form-element">
+        <input type="text" name="image" value="{{ product[4] }}">
+        {% if product[4] %}
+          <img src="{{ product[4] }}" alt="Product Image" class="product-image">
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Price:</label>
+      <div class="form-element">
+        <input type="text" name="price" value="{{ product[5] }}" required>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Category:</label>
+      <div class="form-element">
+        <select name="cat_id" required>
+          {% for c in categories %}
+            <option value="{{ c[0] }}" {% if c[0] == product[6] %}selected{% endif %}>{{ c[1] }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+
+    <div class="button-group">
+      <input type="submit" class="button" value="Save">
+      <a href="/admin" class="button">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}
+
