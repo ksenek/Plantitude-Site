@@ -1,58 +1,84 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
-{% block pageheading %}Edit Product{% endblock %}
+{% block pageheading %}
+  <h2>Edit Product</h2>
+{% endblock %}
 
 {% block main %}
-<div class="myform">
-  <form method="post">
+<div class="admin-section">
+  <form method="POST" action="/edit_product?product_id={{ product[0] }}" class="myform">
+    
+    <!-- Name -->
     <div class="form-group">
-      <label class="form-label">Name:</label>
+      <label for="name" class="form-label">Name:</label>
       <div class="form-element">
         <input type="text" name="name" value="{{ product[1] }}" required>
       </div>
     </div>
 
+    <!-- Description -->
     <div class="form-group">
-      <label class="form-label">Description:</label>
+      <label for="description" class="form-label">Description:</label>
       <div class="form-element">
-        <textarea name="description" rows="4" required>{{ product[2] }}</textarea>
+        <textarea name="description" required>{{ product[2] }}</textarea>
       </div>
     </div>
 
-  
+    <!-- Price -->
     <div class="form-group">
-      <label class="form-label">Image URL:</label>
+      <label for="price" class="form-label">Price:</label>
       <div class="form-element">
-        <input type="text" name="image" value="{{ product[4] }}">
-        {% if product[4] %}
-          <img src="{{ product[4] }}" alt="Product Image" class="product-image">
-        {% endif %}
+        <input type="number" name="price" step="0.01" value="{{ product[5] }}" required>
       </div>
     </div>
 
+    <!-- Category -->
     <div class="form-group">
-      <label class="form-label">Price:</label>
-      <div class="form-element">
-        <input type="text" name="price" value="{{ product[5] }}" required>
-      </div>
-    </div>
-
-    <div class="form-group">
-      <label class="form-label">Category:</label>
+      <label for="cat_id" class="form-label">Category:</label>
       <div class="form-element">
         <select name="cat_id" required>
-          {% for c in categories %}
-            <option value="{{ c[0] }}" {% if c[0] == product[6] %}selected{% endif %}>{{ c[1] }}</option>
+          {% for category in categories %}
+            <option value="{{ category[0] }}" {% if category[0] == product[3] %}selected{% endif %}>
+              {{ category[1] }}
+            </option>
           {% endfor %}
         </select>
       </div>
     </div>
 
-    <div class="button-group">
-      <input type="submit" class="button" value="Save">
-      <a href="/admin" class="button">Cancel</a>
+    <!-- Product Image Choice -->
+    <div class="image-choice">
+      <h3>Product Image</h3>
+      <p>Select <strong>either</strong> the placeholder image OR enter your own filename.</p>
+
+      <div class="image-option">
+        <input type="radio" id="use_noimage" name="image_option" value="noimage"
+               {% if product[3] == "noimage" %}checked{% endif %}>
+        <label for="use_noimage">Use placeholder (noimage)</label>
+      </div>
+
+      <div class="image-option">
+        <input type="radio" id="use_custom" name="image_option" value="custom"
+               {% if product[3] != "noimage" %}checked{% endif %}>
+        <label for="use_custom">Use custom image:</label>
+        <input type="text" name="custom_image" placeholder="e.g. monstera"
+               value="{% if product[4] != 'noimage' %}{{ product[4] | replace('.jpg','') }}{% endif %}">
+      </div>
+
+      <!-- Current preview -->
+      <div class="image-preview">
+        <p>Current image:</p>
+        <img src="/static/images/{{ product[4] if '.' in product[4] else product[4] + '.jpg' }}"
+             alt="{{ product[1] }}" class="product-image">
+      </div>
     </div>
+
+    <!-- Submit -->
+    <div class="button-group">
+      <input type="submit" value="Save" class="button">
+      <a href="/admin" value="Cancel" class="button cancel-button">Cancel</a>
+    </div>
+
   </form>
 </div>
 {% endblock %}
-
