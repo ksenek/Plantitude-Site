@@ -18,6 +18,7 @@ def create_connection(db_file):
         print(e)
     return None
 
+
 # login function
 def is_logged_in():
     if session.get("email") is None:
@@ -345,21 +346,38 @@ def render_add_product():
         return redirect('/?message=Access+Denied+Not+Admin+Account')
     if request.method == "POST":
         print(request.form)
-        product_name = request.form.get('name').lower().strip()
-        product_description = request.form.get('description').strip()
-        product_cat_id = request.form.get('cat_id')
-        product_volume = request.form.get('volume').strip()
-        product_image = request.form.get('image').strip()
-        product_price = request.form.get('price').strip()
 
-        print(product_name, product_description, product_cat_id, product_volume, product_image, product_price)
-        con = create_connection(DATABASE)
-        query = "INSERT INTO products (name, description, volume, image, price, cat_id) VALUES (?, ?, ?, ?, ?, ?)"
-        cur = con.cursor()
-        cur.execute(query, (product_name, product_description, product_volume, product_image, product_price, product_cat_id))
-        con.commit()
-        con.close()
-    return redirect('/admin')
+        try:
+            product_name = request.form.get('name').lower().strip()
+            product_description = request.form.get('description').strip()
+            product_cat_id = int(request.form.get('cat_id'))
+            product_volume = request.form.get('size').strip()
+            product_image = request.form.get('image').strip() or 'noimage'
+            product_price = float(request.form.get('price').strip())
+
+            print(product_name, product_description, product_cat_id, product_volume, product_image, product_price)
+
+            
+
+             # Ensure the image has a default
+            #product_image = request.form.get('image').strip()
+            #if not product_image:
+                #product_image = 'noimage'
+            #elif not product_image.lower().endswith(('.jpg', '.jpeg', '.png', '.gif')):
+                #product_image += '.jpg'  # assume jpg if extension missing
+
+
+            con = create_connection(DATABASE)
+            query = "INSERT INTO products (name, description, size, image, price, cat_id) VALUES (?, ?, ?, ?, ?, ?)"
+            cur = con.cursor()
+            cur.execute(query, (product_name, product_description, product_volume, product_image, product_price, product_cat_id))
+            con.commit()
+            con.close()
+            print("Product added successfully")
+            return redirect('/admin')
+        except Exception as e:
+            print("Error adding product")
+            return f"Error adding product: {e}", 500
 
 # deleting an product (confirm)
 @app.route('/delete_product', methods=['POST'])
@@ -368,6 +386,11 @@ def render_delete_product():
         return redirect('/?message=Need+to+be+logged+in.')
     if not is_admin():
         return redirect('/?message=Access+Denied+Not+Admin+Account')
+    
+    product_id = request.form.get('product_id')
+
+    if not product_id:
+        return redirect("/admin?error=No+product+selected")
 
     if request.method == "POST":
         con = create_connection(DATABASE)
@@ -403,35 +426,51 @@ def render_delete_product_confirm(product_id):
     return redirect("/admin")
 
 @app.route("/edit_product", methods=["GET", "POST"])
-def edit_product():
-     
+def edit_product():  
+
     if not is_logged_in():
         return redirect("/?message=Need+to+be+logged+in.")
     if not is_admin():
         return redirect("/?message=Access+Denied+Not+Admin+Account")
-    
+
     product_id = request.args.get("product_id", type=int) #GET query from string
-    
+
     if not product_id:
+
         return redirect("/admin?error=Product+Not+Found")
 
     con = create_connection(DATABASE)
     cur = con.cursor()
 
+
     if request.method == "POST":
         # pull new values from the form
         new_name = request.form.get("name").strip()
         new_description = request.form.get("description").strip()
-        new_image = request.form.get("image").strip()
-        new_price = request.form.get("price").strip()
-        new_cat = request.form.get("cat_id")
+        #new_image = request.form.get("image").strip()
+        new_price = float(request.form.get("price").strip())
+        new_cat = int(request.form.get("cat_id"))
+
+        image_option = request.form.get("image_option")
+        custom_image = request.form.get("custom_image", "").strip()
+
+        if image_option == "noimage":
+            new_image = "noimage"
+        elif image_option == "custom" and custom_image:
+            new_image = custom_image
+            # always save with .jpg
+            if not any(new_image.lower().endswith(ext) for ext in [".jpg", ".jpeg", ".png", ".gif"]):
+                new_image += ".jpg"
+        else:
+            # fallback in case nothing is provided
+            new_image = "noimage"
 
         query = "UPDATE products SET name=?, description=?, image=?, price=?, cat_id=? WHERE id=?"
         cur.execute(query, (new_name, new_description, new_image, new_price, new_cat, product_id))
         con.commit()
         con.close()
-        return redirect("/admin?message=product+updated")
 
+        return redirect("/admin?message=product+updated")
     
     else:
         # GET → show form
