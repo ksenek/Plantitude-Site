@@ -344,6 +344,7 @@ def render_add_product():
         return redirect('/?message=Need+to+be+logged+in.')
     if not is_admin():
         return redirect('/?message=Access+Denied+Not+Admin+Account')
+    
     if request.method == "POST":
         print(request.form)
 
@@ -357,14 +358,20 @@ def render_add_product():
 
             print(product_name, product_description, product_cat_id, product_volume, product_image, product_price)
 
-            
+            image_option = request.form.get("image_option")
+            custom_image = request.form.get("custom_image", "").strip()
 
-             # Ensure the image has a default
-            #product_image = request.form.get('image').strip()
-            #if not product_image:
-                #product_image = 'noimage'
-            #elif not product_image.lower().endswith(('.jpg', '.jpeg', '.png', '.gif')):
-                #product_image += '.jpg'  # assume jpg if extension missing
+            if image_option == "noimage":
+                product_image = "noimage.jpg"
+            elif image_option == "custom" and custom_image:
+                product_image = custom_image
+                # always ensure extension
+            if not any(product_image.lower().endswith(ext) for ext in [".jpg", ".jpeg", ".png", ".gif"]):
+                product_image += ".jpg"
+            else:
+                # fallback in case user didn’t type anything
+                product_image = "noimage.jpg"
+
 
 
             con = create_connection(DATABASE)
@@ -375,6 +382,7 @@ def render_add_product():
             con.close()
             print("Product added successfully")
             return redirect('/admin')
+        
         except Exception as e:
             print("Error adding product")
             return f"Error adding product: {e}", 500
