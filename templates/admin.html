@@ -40,38 +40,56 @@
 
 <h3>Product Admin</h3>
 
-<h4> Add a product</h4>
+<h4>Add a product</h4>
 <form class="myform" method="post" action="/add_product">
+  <!-- Name -->
   <div class="form-group">
     <div class="form-label"><label for="name">Product Name:</label></div>
     <div class="form-element"><input type="text" name="name" id="name" required></div>
   </div>
 
+  <!-- Description -->
   <div class="form-group">
     <div class="form-label"><label for="description">Product Description:</label></div>
     <div class="form-element"><input type="text" name="description" id="description" required></div>
   </div>
 
+  <!-- Size -->
   <div class="form-group">
     <div class="form-label"><label for="size">Product Volume:</label></div>
     <div class="form-element"><input type="text" name="size" id="size" required></div>
   </div>
 
-  <!-- IMAGE OPTIONS -->
-  <div class="form-group">
-    <div class="form-label"><label>Product Image:</label></div>
-    <div class="form-element">
-      <input type="radio" name="image_option" value="noimage" checked> Use placeholder<br>
-      <input type="radio" name="image_option" value="custom"> Use custom filename:
-      <input type="text" name="custom_image" placeholder="e.g. monstera.jpg">
+  <!-- Product Image Choice -->
+  <div class="image-choice">
+    <h3>Product Image</h3>
+    <p>Select <strong>either</strong> the placeholder image OR enter your own filename.</p>
+
+    <div class="image-option">
+      <input type="radio" id="use_noimage" name="image_option" value="noimage" checked>
+      <label for="use_noimage">Use placeholder (noimage)</label>
+    </div>
+
+    <div class="image-option">
+      <input type="radio" id="use_custom" name="image_option" value="custom">
+      <label for="use_custom">Use custom image:</label>
+      <input type="text" name="custom_image" placeholder="e.g. monstera">
+    </div>
+
+    <!-- Default preview -->
+    <div class="image-preview">
+      <p>Preview:</p>
+      <img src="/static/images/noimage.jpg" alt="Placeholder preview" class="product-image">
     </div>
   </div>
 
+  <!-- Price -->
   <div class="form-group">
     <div class="form-label"><label for="price">Product Price:</label></div>
     <div class="form-element"><input type="text" name="price" id="price" required></div>
   </div>
 
+  <!-- Category -->
   <div class="form-group">
     <div class="form-label"><label for="cat_id">Category:</label></div>
     <div class="form-element">
@@ -83,11 +101,13 @@
     </div>
   </div>
 
-  <div class="form-group">
-    <div class="form-label"></div>
-    <div class="form-element"><input type="submit" value="Add Product"></div>
+  <!-- Submit -->
+  <div class="button-group">
+    <input type="submit" value="Add Product" class="button">
+    <a href="/admin" class="button cancel-button">Cancel</a>
   </div>
 </form>
+
 
 
 <h4> Delete a product </h4>
