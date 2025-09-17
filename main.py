@@ -349,30 +349,29 @@ def render_add_product():
         print(request.form)
 
         try:
-            product_name = request.form.get('name').lower().strip()
-            product_description = request.form.get('description').strip()
+            product_name = (request.form.get('name') or "").lower().strip()
+            product_description = (request.form.get('description') or "").strip()
             product_cat_id = int(request.form.get('cat_id'))
-            product_volume = request.form.get('size').strip()
-            product_image = request.form.get('image').strip() or 'noimage'
-            product_price = float(request.form.get('price').strip())
+            product_volume = (request.form.get('size') or "").strip()
+            product_price = float((request.form.get('price') or "0").strip())
 
-            print(product_name, product_description, product_cat_id, product_volume, product_image, product_price)
-
+            # Handle image
             image_option = request.form.get("image_option")
-            custom_image = request.form.get("custom_image", "").strip()
+            custom_image = (request.form.get("custom_image") or "").strip()
 
             if image_option == "noimage":
                 product_image = "noimage.jpg"
             elif image_option == "custom" and custom_image:
                 product_image = custom_image
                 # always ensure extension
-            if not any(product_image.lower().endswith(ext) for ext in [".jpg", ".jpeg", ".png", ".gif"]):
-                product_image += ".jpg"
+                if not any(product_image.lower().endswith(ext) for ext in [".jpg", ".jpeg", ".png", ".gif"]):
+                    product_image += ".jpg"
             else:
-                # fallback in case user didn’t type anything
+                # fallback in case nothing is provided
                 product_image = "noimage.jpg"
 
-
+        
+            print(product_name, product_description, product_cat_id, product_volume, product_image, product_price)
 
             con = create_connection(DATABASE)
             query = "INSERT INTO products (name, description, size, image, price, cat_id) VALUES (?, ?, ?, ?, ?, ?)"
@@ -384,8 +383,9 @@ def render_add_product():
             return redirect('/admin')
         
         except Exception as e:
-            print("Error adding product")
+            print("Error adding product:", e)
             return f"Error adding product: {e}", 500
+
 
 # deleting an product (confirm)
 @app.route('/delete_product', methods=['POST'])
